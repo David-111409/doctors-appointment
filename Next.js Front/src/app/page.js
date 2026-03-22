@@ -3,6 +3,7 @@ import DoctorsList from "./_components/DoctorsList";
 import Hero from "./_components/Hero";
 
 function page() {
+  
   return (
     <div>
       <Hero />
