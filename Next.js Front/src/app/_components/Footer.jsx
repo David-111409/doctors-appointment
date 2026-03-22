@@ -12,12 +12,6 @@ function Footer() {
 
           <form className="mt-6">
             <div className="relative max-w-lg">
-              <label className="sr-only" htmlFor="email">
-                {" "}
-                Email{" "}
-              </label>
-
-              {/* <input className="w-full rounded-xl border-gray-200 bg-gray-100 p-2 pe-32 text-sm" id="email" type="email" /> */}
               <Input type="email" placeholder="john@doe.com" className="font-medium" />
               <Button className="absolute inset-e-0">Subscribe</Button>
             </div>

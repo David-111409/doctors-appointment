@@ -1,7 +1,6 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -29,9 +28,9 @@ function CategorySearch() {
         <h2 className="font-bold text-4xl mb-7">
           <span className="text-lime-600">Search</span> Categories
         </h2>
-        <div className="flex items-center w-full max-w-sm">
-          <Input name="customer-email" placeholder="Email" type={"email"} />
-          <Button type="submit">Subscribe</Button>
+        <div className="flex items-center w-full max-w-sm relative">
+          <Input name="customer-email" placeholder="Email" type="email" />
+          <Button type="submit" className="absolute inset-e-0">Subscribe</Button>
         </div>
       </form>
       <ul className="grid grid-cols-1 md:grid-cols-3 gap-x-5">
