@@ -1,4 +1,5 @@
 import CategorySearch from "./_components/CategorySearch";
+import DoctorsList from "./_components/DoctorsList";
 import Hero from "./_components/Hero";
 
 function page() {
@@ -6,6 +7,7 @@ function page() {
     <div>
       <Hero />
       <CategorySearch />
+      <DoctorsList />
     </div>
   );
 }

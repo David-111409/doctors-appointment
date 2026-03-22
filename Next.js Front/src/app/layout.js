@@ -1,6 +1,7 @@
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Header from "./_components/Header";
+import Footer from "./_components/Footer";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -15,9 +16,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`h-full antialiased`}>
       <body className={`${outfit.className} min-h-full flex flex-col`}>
-        <div className="md:px-20">
+        <div className="md:px-10">
           <Header />
           {children}
+          <Footer />
         </div>
       </body>
     </html>
