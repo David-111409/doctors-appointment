@@ -1,6 +1,8 @@
+import Link from "next/link";
 import Image from "next/image";
 
 function DoctorCard({ doctor }) {
+ 
   return (
     <div className="border rounded-lg p-3 hover:shadow-sm transition-all ease-in-out">
       <Image
@@ -26,9 +28,12 @@ function DoctorCard({ doctor }) {
 
         <h2 className="text-gray-500 text-sm">{doctor.address}</h2>
 
-        <button className="p-2 px-3 border border-lime-500 text-primary rounded-full w-full text-center text-[15px] mt-2 cursor-pointer hover:bg-lime-500 hover:border-none  hover:text-white transition-all">
+        <Link
+          href={"/details/" + doctor.documentId}
+          className="p-2 px-3 border border-lime-500 text-primary rounded-full w-full text-center text-[15px] mt-2 cursor-pointer hover:bg-lime-500 hover:text-white transition-all"
+        >
           Book Now
-        </button>
+        </Link>
       </div>
     </div>
   );

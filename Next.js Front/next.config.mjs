@@ -2,6 +2,16 @@
 const nextConfig = {
   images: {
     domains: ["localhost"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "gravatar.com",
+      },
+    ],
   },
 };
 
