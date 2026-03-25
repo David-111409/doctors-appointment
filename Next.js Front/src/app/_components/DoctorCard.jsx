@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 function DoctorCard({ doctor }) {
- 
   return (
     <div className="border rounded-lg p-3 hover:shadow-sm transition-all ease-in-out">
       <Image
@@ -10,6 +9,7 @@ function DoctorCard({ doctor }) {
         alt={doctor.name}
         width={500}
         height={200}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="h-75 w-full object-cover rounded-lg"
         unoptimized={true}
         loading="eager"

@@ -20,7 +20,13 @@ function Hero() {
           </div>
 
           <div>
-            <Image width={1000} height={1000} src="/assets/images/img/hero.png" alt="hero image" />
+            <Image
+              width={1000}
+              priority={true}
+              height={1000}
+              src="/assets/images/img/hero.png"
+              alt="hero image"
+            />
           </div>
         </div>
       </div>

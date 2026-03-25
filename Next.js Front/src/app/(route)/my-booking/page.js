@@ -1,46 +1,46 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
-import Api from "@/app/_utils/Api";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { Loader2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { isBefore, parseISO, setHours, setMinutes } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Api from "@/app/_utils/Api";
 
+import BookingCard from "@/app/_components/BookingCard";
 function MyBooking() {
   const { user } = useKindeBrowserClient();
   const [bookingList, setBookingList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const now = new Date();
 
+  const categorizedBookings = bookingList.reduce(
+    (acc, item) => {
+      const bookingDate = parseISO(item.date);
 
-  const onDeleteBooking = (item) => {
-    // 1. تعريف الوعد (Promise) الخاص بالحذف
-    const deletePromise = Api.deleteBooking(item.documentId);
+     
+      const [time, period] = item.time.split(" "); 
+      let [hours, minutes] = time.split(":").map(Number);
 
-    // 2. استخدام toast.promise للتعامل مع كافة الحالات (تحميل، نجاح، خطأ)
-    toast.promise(deletePromise, {
-      loading: "Deleting Appointment",
-      success: (res) => {
-        // 3. تحديث القائمة في الواجهة "فقط" بعد نجاح الحذف في السيرفر
-        setBookingList((prev) => prev.filter((booking) => booking.documentId !== item.documentId));
-        return `Appointment with ${item.doctor?.name} deleted successfully.`;
-      },
-      error: (err) => {
-        console.error("Delete Error:", err);
-        return "Error has happened while deleting appointment";
-      },
-    });
-  };
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+
+      // 4. دمج الوقت مع التاريخ
+      const exactBookingDateTime = setMinutes(setHours(bookingDate, hours), minutes);
+
+      // 5. المقارنة باللحظة الحالية
+      if (isBefore(exactBookingDateTime, now)) {
+        acc.pastBookings.push(item);
+      } else {
+        acc.upcomingBookings.push(item);
+      }
+
+      return acc;
+    },
+    { upcomingBookings: [], pastBookings: [] },
+  );
+
+  const { upcomingBookings, pastBookings } = categorizedBookings;
+
   const getUserBooking = useCallback(() => {
     if (user && user.email) {
       Api.getUserAppointments(user.email).then((res) => {
@@ -52,7 +52,7 @@ function MyBooking() {
 
   useEffect(() => {
     getUserBooking();
-  }, [getUserBooking]);
+  }, [getUserBooking,  upcomingBookings, pastBookings]);
 
   if (loading)
     return (
@@ -67,50 +67,44 @@ function MyBooking() {
       <h2 className="font-bold text-2xl">My Bookings</h2>
       <hr className="my-4" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
-        {bookingList.length > 0 ? (
-          bookingList.map((item, index) => (
-            <div key={index} className="border p-4 rounded-lg shadow-sm flex flex-col gap-2">
-              <h2 className="font-bold text-lg text-lime-600">
-                {item.doctor?.name || "Doctor Name"}
-              </h2>
-              <div className="flex gap-2 text-gray-500">
-                <span>📅 {item.date}</span>
-                <span>⏰ {item.time}</span>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-red-500 hover:bg-red-50 hover:text-red-600 w-full"
-                  >
-                    Cancel Appointment
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your appointment
-                      with <span className="font-medium text-black">{item.doctor?.name}</span>.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Go Back</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-500 hover:bg-red-600"
-                      onClick={() => onDeleteBooking(item)}
-                    >
-                      Yes, Cancel it
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+      <div className="mt-10">
+        <Tabs defaultValue="upcoming" className="w-full">
+          {/* تصميم أزرار التبديل */}
+          <TabsList className="grid w-full grid-cols-2 max-w-100 mb-8 bg-gray-100 p-1 rounded-lg">
+            <TabsTrigger value="upcoming" className="rounded-md transition-all">
+              Upcoming
+            </TabsTrigger>
+            <TabsTrigger value="past" className="rounded-md transition-all">
+              Past
+            </TabsTrigger>
+          </TabsList>
+
+          {/* محتوى المواعيد القادمة */}
+          <TabsContent value="upcoming">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {upcomingBookings.length > 0 ? (
+                upcomingBookings.map((item, index) => <BookingCard type={"upcoming"} item={item} key={index} />)
+              ) : (
+                <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
+                  <p className="text-gray-500 font-medium">No upcoming bookings found.</p>
+                </div>
+              )}
             </div>
-          ))
-        ) : (
-          <p className="text-gray-400">No bookings found.</p>
-        )}
+          </TabsContent>
+
+          {/* محتوى المواعيد السابقة */}
+          <TabsContent value="past">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-80">
+              {pastBookings.length > 0 ? (
+                pastBookings.map((item, index) => <BookingCard item={item} key={index} />)
+              ) : (
+                <div className="col-span-full py-20 text-center border-2 border-dashed rounded-xl">
+                  <p className="text-gray-500 font-medium">No history found.</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

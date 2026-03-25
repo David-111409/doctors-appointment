@@ -17,18 +17,21 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarDays, Clock } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { sendConfirmationEmail } from "@/app/_actions/email";
+
 function Details({ params }) {
   const [date, setDate] = useState(new Date());
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useKindeBrowserClient(); // جلب بيانات المستخدم الحالي
+  const router = useRouter();
 
   const saveBooking = async () => {
     setIsDialogOpen(false);
     const formattedDate = date.toLocaleDateString("en-CA");
     const payload = {
       data: {
-      
         username: user?.given_name + " " + user?.family_name, // الاسم من Kinde
         date: formattedDate,
         email: user?.email,
@@ -43,7 +46,18 @@ function Details({ params }) {
       loading: "Booking your appointment...",
 
       success: () => {
-        return "Appointment booked successfully! We look forward to seeing you.";
+        sendConfirmationEmail(
+          payload.data.email,
+          payload.data.username,
+          doctor.name, // تأكد أن doctor.name موجود عندك
+          payload.data.date,
+          payload.data.time,
+        );
+        setTimeout(() => {
+          router.push("/my-booking");
+        }, 1500);
+
+        return "Booked! Check your email for confirmation.";
       },
 
       error: "Something went wrong. Please try booking again.",
@@ -157,7 +171,7 @@ function Details({ params }) {
                   <DialogTitle className="text-2xl font-bold">Book an Appointment</DialogTitle>
                   <DialogDescription>
                     Select a convenient date and time to meet with
-                    <span className="text-lime-500">{doctor?.name}</span>.
+                    <span className="text-lime-500"> {doctor?.name}</span>.
                   </DialogDescription>
                 </DialogHeader>
 

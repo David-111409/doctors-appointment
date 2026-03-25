@@ -16,12 +16,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`h-full antialiased`}>
       <body className={`${outfit.className} min-h-full flex flex-col`}>
-        <div className="md:px-10">
+        <main className="md:px-10">
           <Header />
           {children}
-          <Toaster richColors  position="top-right"/>
+          <Toaster richColors position="top-right" />
           <Footer />
-        </div>
+        </main>
       </body>
     </html>
   );
